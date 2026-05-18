@@ -1,15 +1,12 @@
 [project]
-name = "atlas-workspace"
+name = "reznar-take-home"
 version = "0"
 requires-python = ">=3.12"
-
-[tool.uv.workspace]
-members = ["packages/*", "clients/*"]
-
-[tool.uv.sources]
-atlas     = { workspace = true }
-reznar    = { workspace = true }
-stormland = { workspace = true }
+dependencies = [
+    "psycopg[binary]>=3.1",
+    "pgserver>=0.1",
+    "pydantic>=2",
+]
 
 [tool.ruff]
 line-length = 100
@@ -17,11 +14,5 @@ target-version = "py312"
 extend-exclude = [".venv", "__pycache__"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "UP", "S", "RUF"]
-ignore = ["E501", "S101"]
-
-[tool.pyright]
-pythonVersion       = "3.12"
-typeCheckingMode    = "basic"
-reportMissingImports = "warning"
-exclude = [".venv", "**/__pycache__"]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]

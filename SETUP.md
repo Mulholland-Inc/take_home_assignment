@@ -4,65 +4,53 @@
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- Docker (Docker Desktop on Mac/Windows; Docker Engine + Compose plugin on Linux/WSL)
-  - Linux/WSL: `sudo apt-get install docker-compose-v2` if `docker compose version` returns an error
+
+That's it. No Docker, no separate Postgres install.
 
 ## 1. Install dependencies
 
-From the repo root:
-
 ```bash
-uv sync --all-packages
+uv sync
 ```
 
-This resolves dependencies and installs all workspace packages (atlas engine, reznar scaffold, and reference client) in editable mode.
+uv resolves dependencies into `.venv/`. Prefix Python commands with `uv run`,
+or `source .venv/bin/activate` once for your session.
 
-uv manages its own virtualenv — prefix Python commands with `uv run` (e.g. `uv run python`, `uv run python -m atlas`), or activate the venv once for your session:
-
-```bash
-source .venv/bin/activate
-```
-
-## 2. Start Postgres
-
-```
-docker compose up -d
-```
-
-This starts a Postgres 18 container on port 5432 with user `atlas`, password `atlas`, database `atlas`.
-
-**Port conflict**: if you already have Postgres running locally on 5432, either stop it first or change the port mapping in `docker-compose.yml` to e.g. `"5433:5432"` and set `ATLAS_DSN` accordingly (see step 3).
-
-**WSL users**: make sure Docker Desktop has WSL integration enabled (Settings → Resources → WSL Integration). The DSN in step 3 uses TCP `localhost`, which works correctly from inside WSL2.
-
-## 3. Set the connection string
-
-```bash
-export ATLAS_DSN=postgresql://atlas:atlas@localhost:5432/atlas
-```
-
-Add this to your shell profile or a `.env` file you source before running anything. Atlas reads this environment variable on every startup — if it is unset, it falls back to a default that may not match your container.
-
-## 4. Verify
+## 2. Verify
 
 ```bash
 uv run python verify.py
 ```
 
-You should see `atlas is ready`. If you get a connection error, check that the container is running (`docker compose ps`) and that `ATLAS_DSN` is exported in your current shell.
+You should see `postgres is ready`.
 
-## 5. Your client
+On the first run, `pgserver` downloads a Postgres binary into your user
+cache and starts a local instance. The data directory lives at
+`data/.pg/` and is gitignored — delete it to reset the database.
 
-Your client scaffold is at `clients/reznar/`. The only hard convention atlas enforces: `clients/reznar/ontology.py` must export a `REGISTRY` dict mapping type name strings to Pydantic `BaseModel` subclasses, and a `register_all(atlas)` function.
+## 3. Your work
 
-See `clients/stormland/ontology.py` for a complete worked example.
+- **`reznar/ontology.py`** — define your Pydantic entity models here.
+- **`reznar/`** — also where your extraction pipeline lives. Add whatever
+  scripts, modules, or notebooks you need to populate Postgres from
+  `data/items_combined.pdf`.
+- **`stormland/ontology.py`** — a worked example showing how to structure
+  Pydantic models for a different domain (commercial real estate leases).
 
-## 6. Export a snapshot
+Use `db.connect()` to get a `psycopg` connection:
 
-Once your data is loaded:
+```python
+import db
 
-```bash
-uv run python -m atlas export reznar --out reznar_snap.bin
+with db.connect() as conn, conn.cursor() as cur:
+    cur.execute("create table if not exists item (id uuid primary key, data jsonb)")
+    # ...
 ```
 
-Submit `reznar_snap.bin` alongside your code.
+How you schema the database (a single `entity` table with a `type`
+column and `jsonb` data, one table per entity type, …) is your design
+call — we want to see your reasoning.
+
+## 4. Submit
+
+See `README.md` for what to commit alongside your code.

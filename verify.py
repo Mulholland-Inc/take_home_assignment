@@ -1,6 +1,7 @@
-import atlas
+import db
 
-conn = atlas.connect()
-atlas.bootstrap(conn)
-print("atlas is ready")
-conn.close()
+with db.connect() as conn, conn.cursor() as cur:
+    cur.execute("select 1")
+    assert cur.fetchone()[0] == 1
+
+print("postgres is ready")

@@ -1,4 +1,6 @@
-# Instructions
+# Reznar's Arcane Oddities — take-home
+
+> See `SETUP.md` to get the local Postgres running before you start.
 
 **Checkout a git branch with your name and make incremental pushes. We will follow your commits.**
 
@@ -20,28 +22,24 @@ Reznar is also interested in finding patterns in the magic items, so that he can
 
 Your source data is in `data/items_combined.pdf`. It is messy.
 
-Using the Atlas tooling provided, design an ontology for Reznar's magic item catalog and populate it from the PDF. See `clients/stormland/ontology.py` for a worked example of how a client ontology is structured, and `SETUP.md` for how to get Atlas running locally.
+Design an ontology for Reznar's magic item catalog and populate it from the PDF. See `stormland/ontology.py` for a worked example of how an ontology is structured, and `SETUP.md` for how to get the local Postgres running.
 
 **What to produce:**
 
-1. **`clients/reznar/ontology.py`** — your Pydantic entity models registered with Atlas. Document your design choices: what entity types you created, what fields you included, and why you structured it the way you did.
+1. **`reznar/ontology.py`** — your Pydantic entity models. Document your design choices: what entity types you created, what fields you included, and why you structured it the way you did.
 
-2. **An extraction pipeline** — a script or agent that reads the PDF and populates the Atlas database. The source data is imperfect; your pipeline should handle that gracefully. We are an AI-first company and expect you to build AI tools.
+2. **An extraction pipeline** — a script or agent that reads the PDF and populates the local Postgres database. The source data is imperfect; your pipeline should handle that gracefully. We are an AI-first company and expect you to build AI tools.
 
-3. **A snapshot** — once your data is loaded, export it:
-   ```
-   uv run python -m atlas export reznar --out reznar_snap.bin
-   ```
-   Submit `reznar_snap.bin` alongside your code.
+3. **A snapshot** — once your data is loaded, dump it so we can inspect it without rerunning the pipeline. A `pg_dump` or a JSON export of your tables is fine; commit it as e.g. `reznar.dump` or `reznar.json` at the repo root.
 
 ---
 
 ### Note: What even is an ontology?
-Ontology is a philosophy term for 'things that exist', and like all philosophy terms there is a lot of *debate* about it. From a software perspective, ontology is the secret sauce that enables Palantir to be Palantir--a set of structured relationships between everything that can be traversed and queried. 
+Ontology is a philosophy term for 'things that exist', and like all philosophy terms there is a lot of *debate* about it. From a software perspective, ontology is the secret sauce that enables Palantir to be Palantir--a set of structured relationships between everything that can be traversed and queried.
 * [Palantir docs](https://www.palantir.com/docs/foundry/ontology/overview)
 * [Casey Hart Youtube](https://www.youtube.com/watch?v=UW57RW-4kWs&list=PLIHlyoU28t5_gsMf8EkmnQVSHefbR3xqz)
 
-You can also think of it as a database schema. Formally, an ontology is just a bunch of triples, Subject -> Predicate -> Object, but in practical terms that is a pain to query. There's a lot of pre-existing practice, you may see acronyms  like OWL, BFO, and RDF. 
+You can also think of it as a database schema. Formally, an ontology is just a bunch of triples, Subject -> Predicate -> Object, but in practical terms that is a pain to query. There's a lot of pre-existing practice, you may see acronyms  like OWL, BFO, and RDF.
 
 At Mulholland, we move fast, so we build our ontologies in Pydantic. An example codebase is provided.
 

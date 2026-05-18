@@ -1,22 +1,10 @@
 __pycache__/
 *.py[cod]
 .DS_Store
-.atlas/
 .venv/
-.claude/scheduled_tasks.lock
-CONTEXT.md
 uv.lock
 
-# Terraform
-**/.terraform/
-**/terraform.tfstate
-**/terraform.tfstate.*
-**/.terraform.lock.hcl
-**/.terraform.tfstate.lock.info
-*.tfvars
-*.tfvars.json
-# Our root tfvars holds only IDs (project, zone, account) — not secrets.
-# Secrets live in Secret Manager (see infra/main.tf). Track it.
-!infra/terraform.tfvars
+# Embedded Postgres data directory created by db.connect()
+data/.pg/
 
 *.egg-info/
