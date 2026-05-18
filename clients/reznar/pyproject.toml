@@ -1,0 +1,16 @@
+[project]
+name = "reznar"
+version = "0.1.0"
+description = "Reznar's Arcane Oddities — magic item catalog ontology, built on atlas."
+requires-python = ">=3.12"
+dependencies = [
+    "atlas",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["reznar"]
+package-dir = {reznar = "."}
