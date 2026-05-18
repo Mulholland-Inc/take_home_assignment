@@ -2,7 +2,7 @@
   <img src="chest.png" alt="" width="160">
 </p>
 
-# Reznar's Arcane Oddities
+<h1 align="center">Reznar's Arcane Oddities</h1>
 
 > See `SETUP.md` to get the local Postgres running before you start.
 
