@@ -2,7 +2,7 @@
   <img src="chest.png" alt="" width="160">
 </p>
 
-# Reznar's Arcane Oddities — take-home
+# Reznar's Arcane Oddities
 
 > See `SETUP.md` to get the local Postgres running before you start.
 
