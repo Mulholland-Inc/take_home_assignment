@@ -22,7 +22,7 @@ Reznar is also interested in finding patterns in the magic items, so that he can
 
 ---
 
-## Part 1 — Ontology & Data Pipeline
+## Ontology & Data Pipeline
 
 Your source data is in `data/items_combined.pdf`. It is messy.
 
@@ -36,6 +36,8 @@ Design an ontology for Reznar's magic item catalog and populate it from the PDF.
 
 3. **Run instructions** — clear, runnable steps so we can execute your extraction ourselves end-to-end. Add them to the README (or a `RUN.md`): how to install, what env vars / API keys to set, and the exact command(s) to populate the database from the PDF.
 
+4. **Exported results** — a dump of your populated database committed to the repo so we can inspect the output without re-running your pipeline. Export it as either a `.sql` file (e.g. `pg_dump`) or one `.csv` per entity type, and commit it alongside your code.
+
 ---
 
 ### Note: What even is an ontology?
@@ -47,26 +49,10 @@ You can also think of it as a database schema. Formally, an ontology is just a b
 
 At Mulholland, we move fast, so we build our ontologies in Pydantic. An example codebase is provided.
 
-## Part 2 — Analysis Notebook
-
-Reznar suspects that not all items in his catalog are priced appropriately for their power level. He wants to know if any items look like they don't belong in their rarity tier.
-
-Produce a Jupyter notebook (`analysis.ipynb`) that:
-
-1. **Predicts rarity** from the structured fields you extracted in Part 1. Walk through your feature choices, model selection, and how you evaluate quality given the dataset size.
-
-2. **Identifies rarity anomalies** — items whose characteristics don't match what you'd expect for their stated rarity tier. For each flagged item, explain *why* it stands out.
-
-The notebook should read like a report, not just runnable code. Reznar is not a data scientist; your prose and visualizations should tell the story.
-
----
-
 ## How this assignment will be evaluated
 
 1. **Ontology design** — the quality of your entity model and how well it captures what Reznar described. There is no single right answer; we want to see your reasoning.
 
 2. **Pipeline quality** — how well your extraction handles the messiness of the source data and how completely it captures the catalog.
 
-3. **Notebook clarity** — how legible and insightful your rarity analysis is. Can a non-technical reader follow it?
-
-4. **Explanation** — we want to follow your thought process throughout. Make incremental commits and consider maintaining a timestamped `log.md` as you work.
+3. **Explanation** — we want to follow your thought process throughout. Make incremental commits and consider maintaining a timestamped `log.md` as you work.
