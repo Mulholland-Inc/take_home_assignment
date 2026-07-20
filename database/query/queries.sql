@@ -1,0 +1,7 @@
+-- Add your named queries here, e.g.:
+--
+--   -- name: InsertItem :one
+--   insert into item (name, rarity) values ($1, $2) returning *;
+--
+-- Then run `sqlc generate` (from this directory) to produce typed Go in
+-- ../generated. See ../../stormland/query for a worked example.

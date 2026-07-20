@@ -1,0 +1,20 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # Schema files in dependency order (parents before the tables that inherit
+    # or reference them), matching the "-- requires:" headers db.Apply reads.
+    schema:
+      - "schema/foundation.sql"
+      - "schema/types.sql"
+      - "schema/property.sql"
+      - "schema/tenant.sql"
+      - "schema/landlord.sql"
+      - "schema/lease.sql"
+    queries:
+      - "query"
+    gen:
+      go:
+        package: "generated"
+        out: "generated"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true

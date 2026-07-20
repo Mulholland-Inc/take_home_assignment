@@ -2,65 +2,65 @@
 
 ## Prerequisites
 
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- Go 1.24+
+- Docker (for the local Postgres)
+- [`sqlc`](https://docs.sqlc.dev/en/latest/overview/install.html) — `brew install sqlc`
 
-## 1. Install dependencies
+## 1. Start Postgres
 
 ```bash
-uv sync
+docker compose up -d
 ```
 
-uv resolves dependencies into `.venv/`. Prefix Python commands with `uv run`,
-or `source .venv/bin/activate` once for your session.
+One pinned PostgreSQL 18 (its built-in `uuidv7()` backs the `object` base class),
+reachable at `postgres://postgres:postgres@localhost:5433/postgres`. Override with
+`DATABASE_URL` if you need to. Reset the database at any time with:
+
+```bash
+docker compose down -v && docker compose up -d
+```
 
 ## 2. Verify
 
 ```bash
-uv run python verify.py
+go run ./cmd/verify
 ```
 
 You should see `postgres is ready`.
 
-On the first run, `pgserver` downloads a Postgres binary into your user
-cache and starts a local instance. The data directory lives at
-`data/.pg/` and is gitignored — delete it to reset the database.
-
 ## 3. Your work
 
-- **`reznar/ontology.py`** — define your Pydantic entity models here.
-- **`reznar/`** — also where your extraction pipeline lives. Add whatever
-  scripts, modules, or notebooks you need to populate Postgres from
-  `data/items_combined.pdf`.
-- **`stormland/ontology.py`** — a worked example showing how to structure
-  Pydantic models for a different domain (commercial real estate leases).
+- **`database/schema/*.sql`** — define your ontology here, on top of the provided
+  `foundation.sql`. List each new file in `database/sqlc.yaml` (in dependency
+  order) and give it a `-- requires:` header so provisioning applies it after its
+  parents.
+- **Generate typed Go** after each schema change, from the `database/` directory:
+  ```bash
+  cd database && sqlc generate
+  ```
+  Output lands in `database/generated/`.
+- **`cmd/extract`** — your extraction pipeline. It already provisions the schema
+  and opens the PDF; you build the extraction and inserts.
+- **`stormland/`** — a complete worked example in a different domain (commercial
+  real-estate leases). Read it as your reference for the whole loop, then delete
+  it if you like. Its live end-to-end test runs against the compose database:
+  ```bash
+  go test ./stormland/
+  ```
 
-Use `db.connect()` to get a `psycopg` connection:
+## Layout
 
-```python
-import db
-
-with db.connect() as conn, conn.cursor() as cur:
-    cur.execute("create table if not exists item (id uuid primary key, data jsonb)")
-    # ...
 ```
-
-How you schema the database (a single `entity` table with a `type`
-column and `jsonb` data, one table per entity type, …) is your design
-call — we want to see your reasoning.
-
-## 4. Browse the data (optional)
-
-```bash
-uv run python web.py
+compose.yaml            local Postgres (port 5433)
+db/                     connection pool + declarative-schema provisioner
+database/
+  schema/foundation.sql base `object` class + touch trigger (provided)
+  schema/               your entity types go here
+  query/                your named queries for sqlc
+  generated/            sqlc output (typed Go)
+  sqlc.yaml
+stormland/              worked example: schema -> sqlc -> normalized insert
+cmd/verify              "postgres is ready" check
+cmd/extract             your extraction pipeline (scaffold)
+data/items_combined.pdf the source catalog
 ```
-
-Opens [pgweb](https://github.com/sosedoff/pgweb) at http://localhost:8081
-pointed at the local database. Install pgweb first:
-
-- macOS:  `brew install pgweb`
-- other:  https://github.com/sosedoff/pgweb/releases
-
-## 5. Submit
-
-See `README.md` for what to commit alongside your code.

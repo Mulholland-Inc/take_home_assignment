@@ -1,10 +1,10 @@
-__pycache__/
-*.py[cod]
+# Build output
+/bin/
+*.exe
+
+# Local env / secrets
+.env
+.env.local
+
+# OS
 .DS_Store
-.venv/
-uv.lock
-
-# Embedded Postgres data directory created by db.connect()
-data/.pg/
-
-*.egg-info/

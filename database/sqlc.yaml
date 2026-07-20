@@ -1,0 +1,17 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # List schema files in dependency order — sqlc reads them top to bottom, so
+    # inherited tables and foreign keys need their parents listed first. Add
+    # each new schema/*.sql file here as you create it.
+    schema:
+      - "schema/foundation.sql"
+      # - "schema/item.sql"
+    queries:
+      - "query"
+    gen:
+      go:
+        package: "generated"
+        out: "generated"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true

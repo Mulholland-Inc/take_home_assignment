@@ -6,7 +6,7 @@
 
 > See `SETUP.md` to get the local Postgres running before you start.
 
-**Checkout a git branch with your name and make incremental pushes. We will follow your commits.**
+**Check out a git branch with your name and make incremental pushes. We will follow your commits.**
 
 MulhollandAI has taken on Reznar's Arcane Oddities, a fantasy magic item shop, as a client. Your job is to help Reznar organize their products so that it is easy to add new items for sale and to find patterns across the catalog.
 
@@ -22,36 +22,45 @@ Reznar is also interested in finding patterns in the magic items, so that he can
 
 ---
 
-## Ontology & Data Pipeline
+## The assignment
 
 Your source data is in `data/items_combined.pdf`. It is messy.
 
-Design an ontology for Reznar's magic item catalog and populate it from the PDF. See `stormland/ontology.py` for a worked example of how an ontology is structured, and `SETUP.md` for how to get the local Postgres running.
+Design an ontology for Reznar's magic item catalog and populate it from the PDF. There are two deliverables:
 
-**What to produce:**
+### 1. The ontology — `database/schema/*.sql`
 
-1. **`reznar/ontology.py`** — your Pydantic entity models. Document your design choices: what entity types you created, what fields you included, and why you structured it the way you did.
+Model Reznar's catalog as a declarative Postgres schema, the way our production ontology is built:
 
-2. **An extraction pipeline** — a script or agent that reads the PDF and populates the local Postgres database. The source data is imperfect; your pipeline should handle that gracefully. We are an AI-first company and expect you to build AI tools.
+- One `.sql` file per object type, each `inherits (object)` (the base class in `foundation.sql`, which gives every entity an `id` and timestamps).
+- `create domain` / `create type ... as enum` for your value vocabulary — a rarity, a wear slot, a gold price — so meaning lives in the type and the database rejects anything malformed.
+- `comment on table` / `comment on column` describing what each entity and field means. Those comments **are** the ontology's self-description; keep them meaningful.
+- Foreign keys for the relationships between entities, so the catalog is traversable.
 
-3. **Run instructions** — clear, runnable steps so we can execute your extraction ourselves end-to-end. Add them to the README (or a `RUN.md`): how to install, what env vars / API keys to set, and the exact command(s) to populate the database from the PDF.
+`sqlc` reads these same files to generate typed Go into `database/generated/` — run `sqlc generate` from `database/` after each schema change. See **`stormland/`** for a complete worked example (a commercial-real-estate lease ontology) built exactly this way, end to end.
 
-4. **Exported results** — a dump of your populated database committed to the repo so we can inspect the output without re-running your pipeline. Export it as either a `.sql` file (e.g. `pg_dump`) or one `.csv` per entity type, and commit it alongside your code.
+Document your design choices: what entity types you created, what fields and value types you defined, and why you structured it the way you did.
+
+### 2. The extraction pipeline — `cmd/extract`
+
+A Go pipeline that reads the PDF and populates the database against your ontology. The source data is imperfect; your pipeline should handle that gracefully. We are an AI-first company and expect the extraction step to be AI-driven, not hand-written parsing. Normalize each record into the canonical vocabulary your domains demand, then insert it through your generated queries — `stormland/example.go` (`Seed`) shows the shape of that write path.
+
+`cmd/extract` is scaffolded: it provisions your schema and opens the PDF. The extraction itself is yours to build.
 
 ---
 
-### Note: What even is an ontology?
-Ontology is a philosophy term for 'things that exist', and like all philosophy terms there is a lot of *debate* about it. From a software perspective, ontology is the secret sauce that enables Palantir to be Palantir--a set of structured relationships between everything that can be traversed and queried.
-* [Palantir docs](https://www.palantir.com/docs/foundry/ontology/overview)
-* [Casey Hart Youtube](https://www.youtube.com/watch?v=UW57RW-4kWs&list=PLIHlyoU28t5_gsMf8EkmnQVSHefbR3xqz)
+### Note: what even is an ontology?
 
-You can also think of it as a database schema. Formally, an ontology is just a bunch of triples, Subject -> Predicate -> Object, but in practical terms that is a pain to query. There's a lot of pre-existing practice, you may see acronyms  like OWL, BFO, and RDF.
+Ontology is a philosophy term for 'things that exist', and like all philosophy terms there is a lot of *debate* about it. From a software perspective, ontology is the secret sauce that enables Palantir to be Palantir — a set of structured relationships between everything that can be traversed and queried.
 
-At Mulholland, we move fast, so we build our ontologies in Pydantic. An example codebase is provided.
+- [Palantir docs](https://www.palantir.com/docs/foundry/ontology/overview)
+- [Casey Hart YouTube](https://www.youtube.com/watch?v=UW57RW-4kWs&list=PLIHlyoU28t5_gsMf8EkmnQVSHefbR3xqz)
+
+You can also think of it as a database schema. Formally, an ontology is just a bunch of triples, Subject → Predicate → Object, but in practical terms that is a pain to query. There's a lot of pre-existing practice; you may see acronyms like OWL, BFO, and RDF. At Mulholland we move fast, so our ontology is a declarative Postgres schema with typed Go generated from it — the pattern the `stormland/` example demonstrates.
 
 ## How this assignment will be evaluated
 
-1. **Ontology design** — the quality of your entity model and how well it captures what Reznar described. There is no single right answer; we want to see your reasoning.
+1. **Ontology design** — the quality of your schema and how well it captures what Reznar described: sensible entity types, value types that encode meaning, honest relationships. There is no single right answer; we want to see your reasoning.
 
 2. **Pipeline quality** — how well your extraction handles the messiness of the source data and how completely it captures the catalog.
 

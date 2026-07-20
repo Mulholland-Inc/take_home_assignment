@@ -1,0 +1,26 @@
+# The local database. One pinned PostgreSQL 18 — the version whose built-in
+# uuidv7() the `object` base class relies on. `docker compose up -d` starts it;
+# `docker compose down -v` wipes it and the next `verify` reprovisions from the
+# schema files. No cloud credentials required.
+name: oddities
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      # 5433 on the host so this never collides with a local 5432 cluster.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:
