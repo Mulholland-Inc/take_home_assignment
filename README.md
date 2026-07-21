@@ -6,7 +6,7 @@
 
 > See `SETUP.md` to get the local Postgres running before you start.
 
-**Check out a git branch with your name and make incremental pushes. We will follow your commits.**
+**Fork the repo and make incremental pushes. We will follow your commits.**
 
 MulhollandAI has taken on Reznar's Arcane Oddities, a fantasy magic item shop, as a client. Your job is to help Reznar organize their products so that it is easy to add new items for sale and to find patterns across the catalog.
 
